@@ -37,6 +37,8 @@ for f in index irmin; do (cd $f; git remote add tom https://github.com/tomjridge
 
 # install dependencies of each repo ----------
 
+#(equinix) eval $(opam env)
+
 for f in mini-btree kv-hash kv-lite repr index irmin; do (cd $f; opam install . --deps-only --with-doc --with-test -y --ignore-pin-depend); done
 
 # missing irmin dep
