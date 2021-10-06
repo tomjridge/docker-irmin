@@ -4,6 +4,8 @@ FROM ocaml/opam
 #(equinix) export COMANCHE=128.232.124.177
 #(equinix) scp tom@$COMANCHE:/bench/tom/data_1343496commits.repr . # 35 mins; do concurrently with building Dockerfile
 
+# apt -------------------------
+
 # some of the following apt packages are likely already installed
 RUN sudo apt-get update
 # sudo apt-get install opam # if not already present
@@ -21,6 +23,11 @@ RUN sudo apt-get install -y rsync bubblewrap
 #(equinix) eval $(opam env)
 #(equinix and docker?) export OPAMYES=true
 
+RUN sudo apt-get -y update
+RUN sudo apt-get -y install gnuplot-x11 libgmp-dev pkg-config libffi-dev libkyotocabinet-dev librocksdb-dev libxxhash-dev liblmdb-dev libsqlite3-dev # FIXME aren't these deps of particular packages?
+
+# opam seed ------------------
+
 RUN opam update
 
 # install some common packages, so they are cached in future docker builds
@@ -29,13 +36,10 @@ RUN opam install core_kernel
 RUN opam install core
 RUN opam install re
 
-RUN sudo apt-get -y update
-RUN sudo apt-get -y install gnuplot-x11 libgmp-dev pkg-config libffi-dev libkyotocabinet-dev librocksdb-dev libxxhash-dev liblmdb-dev libsqlite3-dev # FIXME aren't these deps of particular packages?
-
 
 # clone repos we need ----------
 
-RUN echo rebuild........
+RUN echo rebuild.........
 RUN git clone https://github.com/tomjridge/tjr_util.git
 RUN git clone https://github.com/tomjridge/mini-btree.git
 RUN git clone https://github.com/tomjridge/kv-hash.git
@@ -47,9 +51,23 @@ RUN (cd irmin && git submodule update --init --recursive)
 
 RUN for f in index irmin; do (cd $f; git remote add tom https://github.com/tomjridge/$f; git fetch --all); done
 
+
+# add dependencies of master repr, index and irmin ---------------------
+
+# so that future changes in the remainder of this file don't force
+# lengthy rebuilds of these packages
+
+RUN for f in repr index irmin; do (cd $f; opam install . --deps-only --with-doc --with-test -y --ignore-pin-depend); done
+
+
+
 # checkout particular versions ------
 
-RUN (cd index && git checkout 21q3_index-lite)
+########################################
+# Don't forget this bit!
+########################################
+
+RUN (cd index && git checkout 21q3_minibtree)
 
 
 # test compile FIXME remove --------------

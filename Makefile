@@ -10,4 +10,8 @@ cp_from_container:
 init.sh: Dockerfile FORCE
 	cat Dockerfile | sed 's/^RUN //g' | sed 's/FROM.*//' >$@
 
+download_repr:
+	export COMANCHE=128.232.124.177 && scp tom@${COMANCHE}:/bench/tom/data_1343496commits.repr /tmp
+
+
 FORCE:
