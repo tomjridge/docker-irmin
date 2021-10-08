@@ -29,6 +29,7 @@ RUN sudo apt-get -y install gnuplot-x11 libgmp-dev pkg-config libffi-dev libkyot
 # opam seed ------------------
 
 RUN opam update
+RUN opam switch list
 
 # install some common packages, so they are cached in future docker builds
 RUN opam install dune ocamlfind odoc
