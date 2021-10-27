@@ -1,0 +1,45 @@
+FROM ocaml/opam
+
+RUN echo rebuild...
+
+# apt -------------------------
+
+# some of the following apt packages are likely already installed
+RUN sudo apt-get -y update
+
+# sudo apt-get install opam # if not already present
+RUN sudo apt-get -y install git make curl gcc bzip2 wget unzip m4 time rsync bubblewrap
+
+RUN sudo apt-get -y install gnuplot-x11 libgmp-dev pkg-config libffi-dev 
+
+# opam seed ------------------
+
+RUN opam update
+
+RUN opam install alcotest alcotest-lwt astring base64 bechamel bentov bheap cmdliner cohttp cohttp-lwt cohttp-lwt-unix conduit conduit-lwt-unix crowbar cstruct digestif either fmt fpath git git-cohttp-unix git-paf git-unix graphql graphql-cohttp graphql-lwt graphql_parser hex irmin-watcher jsonm logs lwt memtrace metrics metrics-unix mirage-clock mirage-kv mtime ocamlgraph optint ppx_deriving ppx_deriving_yojson ppxlib printbox progress ptime re rusage semaphore-compat stdlib-shims uri uucp uuidm uutf vector webmachine yaml yojson zarith
+
+# clone repos we need ----------
+
+RUN echo rebuild...........
+RUN git clone https://github.com/mirage/repr.git
+RUN git clone https://github.com/mirage/index.git
+RUN git clone https://github.com/mirage/irmin.git
+RUN git clone https://github.com/tarides/tezos-context-hash.git
+RUN cd tezos-context-hash && git remote add craigfe git@github.com:CraigFe/tezos-context-hash.git && git fetch --all
+
+
+# get right versions -------------
+
+RUN cd repr && git checkout main
+RUN cd index && git checkout main
+RUN cd irmin && git checkout main
+RUN cd tezos-context-hash && git checkout latest-repr
+
+
+# build -----------------------
+
+RUN dune build --root=. irmin/bench/irmin-pack/tree.exe
+
+
+
+

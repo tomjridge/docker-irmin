@@ -20,6 +20,9 @@ wget https://launchpad.net/ubuntu/+archive/primary/+files/librocksdb6.11_6.11.4-
 dpkg -i ./lib*.deb # maybe before this, install libgflags and libsnappy
 ```
 
+# Alternative: just copy the local exe to the equinix box and install libs
+
+
 # Running a benchmark
 
 I do something like this:
@@ -30,7 +33,7 @@ export T=data_1343496commits.repr
 /tmp/tree.exe --mode=trace --keep-stat-trace --keep-store --ncommits-trace=$N $T
 
 # or...
-nohup /tmp/tree.exe --mode=trace --keep-stat-trace --keep-store --ncommits-trace=$N $T >out 2>&1
+nohup /tmp/tree.exe --mode=trace --keep-stat-trace --keep-store --ncommits-trace=$N $T >out 2>&1 &
 
 ```
 

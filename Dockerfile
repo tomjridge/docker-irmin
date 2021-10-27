@@ -40,7 +40,7 @@ RUN opam install re
 
 # clone repos we need ----------
 
-RUN echo rebuild.........
+RUN echo rebuild...........
 RUN git clone https://github.com/tomjridge/tjr_util.git
 RUN git clone https://github.com/tomjridge/mini-btree.git
 RUN git clone https://github.com/tomjridge/kv-hash.git
@@ -48,7 +48,7 @@ RUN git clone https://github.com/tomjridge/kv-lite.git
 RUN git clone https://github.com/mirage/repr.git
 RUN git clone https://github.com/mirage/index.git
 RUN git clone https://github.com/mirage/irmin.git
-RUN (cd irmin && git submodule update --init --recursive)
+RUN (cd irmin && git submodule update --init --recursive) # FIXME tezos-context-hash is now released on irmin
 
 RUN for f in index irmin; do (cd $f; git remote add tom https://github.com/tomjridge/$f; git fetch --all); done
 
@@ -68,7 +68,8 @@ RUN for f in repr index irmin; do (cd $f; opam install . --deps-only --with-doc 
 # Don't forget this bit!
 ########################################
 
-RUN (cd index && git checkout 21q3_minibtree)
+# RUN (cd index && git checkout 21q3_minibtree)
+RUN (cd irmin && git checkout mini-btree)
 
 
 # test compile FIXME remove --------------
@@ -89,13 +90,19 @@ RUN for f in repr index irmin; do (cd $f; opam install . --deps-only --with-doc 
 RUN opam install bentov
 
 
+# check versions ---------------------
+
+RUN for f in kv-hash repr index irmin; do (echo; echo "Recent commits in $f"; cd $f && git log --pretty=oneline -n 5); done
+RUN echo "Current opam pins"; opam pin
+
+
 # build -----------------------
 
 # kv_lite
 # RUN eval $(opam env) && (cd kv-lite && make)
 
 # tree.exe
-RUN echo rebuild....
+RUN echo rebuild.....
 RUN echo `realpath .`
 RUN eval $(opam env) && dune build -- ./irmin/bench/irmin-pack/tree.exe
 RUN eval $(opam env) && cp _build/default/irmin/bench/irmin-pack/tree.exe .
